@@ -16,7 +16,7 @@ using Microsoft.AspNet.SignalR;
 using Microsoft.Owin.Hosting;
 using Noesis.Drawing.Imaging.WebP;
 
-namespace CaptureTest
+namespace CaptureServerRx
 {
     public partial class Main : Form
     {
@@ -43,8 +43,6 @@ namespace CaptureTest
             this.FormClosed += Main_FormClosed;
         }
 
-        #region Background Worker
-
         private void bgw_DoWork(object sender, DoWorkEventArgs e)
         {
             SetPort();
@@ -57,7 +55,7 @@ namespace CaptureTest
             }
             else if (!_fw.isPortFound(Port))
             {
-                MessageBox.Show("Please open the port " + Port + " manually!\nor check the \"Auto configure firewall\"");
+                MessageBox.Show("Please open the port " + Port + " manually!\r\nor check the \"Auto configure firewall\"");
                 button2_Click(null, null);
                 return;
             }
@@ -75,24 +73,14 @@ namespace CaptureTest
                 }
             }
         }
-        void bgw_ProgressChanged(object sender, ProgressChangedEventArgs e)
-        {
-            if (e.ProgressPercentage == 2)
-            {
-                button2_Click(null, null);
-            }
-            else if (cbxConsole.Checked)
-            {
-                txtconsole.AppendText(string.Format("{0} frame captured, buffer size: {1}\r\n", DateTime.Now.ToString("s"), e.UserState));
-            }
-        }
-        private void trackBarSpeed_ValueChanged(object sender, EventArgs e)
-        {
-            SetSpeed(trackBarSpeed.Value);
-        }
 
-        #endregion
-
+        private int Notify()
+        {
+            var context = GlobalHost.ConnectionManager.GetHubContext<MyHub>();
+            var size = 0;
+            context.Clients.All.stream(_Capture(out size));
+            return size;
+        }
 
         #region Events
 
@@ -120,6 +108,21 @@ namespace CaptureTest
 
             if (_bgw.IsBusy) _bgw.CancelAsync();
             _fw.CloseFirewall(Port);
+        }
+        void bgw_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            if (e.ProgressPercentage == 2)
+            {
+                button2_Click(null, null);
+            }
+            else if (cbxConsole.Checked)
+            {
+                txtconsole.AppendText(string.Format("{0} frame captured, buffer size: {1}\r\n", DateTime.Now.ToString("s"), e.UserState));
+            }
+        }
+        private void trackBarSpeed_ValueChanged(object sender, EventArgs e)
+        {
+            SetSpeed(trackBarSpeed.Value);
         }
 
         // capture full screen
@@ -150,14 +153,6 @@ namespace CaptureTest
             if (!cbxConsole.Checked) txtconsole.Text = "";
         }
         #endregion
-
-        private int Notify()
-        {
-            var context = GlobalHost.ConnectionManager.GetHubContext<MyHub>();
-            var size = 0;
-            context.Clients.All.stream(_Capture(out size));
-            return size;
-        }
 
         private string _Capture(out int size)
         {
@@ -214,7 +209,8 @@ namespace CaptureTest
                 return "";
             }
         }
-        
+
+
         private void SetSpeed(int value)
         {
             var i = 11 - value;
