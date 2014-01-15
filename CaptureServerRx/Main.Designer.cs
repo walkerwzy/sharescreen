@@ -35,7 +35,12 @@
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.txtconsole = new System.Windows.Forms.TextBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.rbtnControl = new System.Windows.Forms.RadioButton();
+            this.rbtnrec = new System.Windows.Forms.RadioButton();
+            this.rbtnfull = new System.Windows.Forms.RadioButton();
+            this.label4 = new System.Windows.Forms.Label();
+            this.cbxAutoFirewall = new System.Windows.Forms.CheckBox();
             this.label9 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
@@ -49,17 +54,12 @@
             this.lblfps = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.panel2 = new System.Windows.Forms.Panel();
-            this.rbtnfull = new System.Windows.Forms.RadioButton();
-            this.rbtnrec = new System.Windows.Forms.RadioButton();
-            this.rbtnControl = new System.Windows.Forms.RadioButton();
             this.groupBox1.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupBox2.SuspendLayout();
+            this.panel2.SuspendLayout();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarSpeed)).BeginInit();
-            this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // button1
@@ -141,7 +141,7 @@
             | System.Windows.Forms.AnchorStyles.Left)));
             this.groupBox2.Controls.Add(this.panel2);
             this.groupBox2.Controls.Add(this.label4);
-            this.groupBox2.Controls.Add(this.checkBox1);
+            this.groupBox2.Controls.Add(this.cbxAutoFirewall);
             this.groupBox2.Controls.Add(this.label9);
             this.groupBox2.Controls.Add(this.label8);
             this.groupBox2.Controls.Add(this.label7);
@@ -159,17 +159,73 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Settinngs";
             // 
-            // checkBox1
+            // panel2
             // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Checked = true;
-            this.checkBox1.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox1.Location = new System.Drawing.Point(51, 50);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(130, 17);
-            this.checkBox1.TabIndex = 14;
-            this.checkBox1.Text = "Auto configure firewall";
-            this.checkBox1.UseVisualStyleBackColor = true;
+            this.panel2.Controls.Add(this.rbtnControl);
+            this.panel2.Controls.Add(this.rbtnrec);
+            this.panel2.Controls.Add(this.rbtnfull);
+            this.panel2.Location = new System.Drawing.Point(8, 278);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(173, 86);
+            this.panel2.TabIndex = 16;
+            // 
+            // rbtnControl
+            // 
+            this.rbtnControl.AutoSize = true;
+            this.rbtnControl.Enabled = false;
+            this.rbtnControl.Location = new System.Drawing.Point(10, 51);
+            this.rbtnControl.Name = "rbtnControl";
+            this.rbtnControl.Size = new System.Drawing.Size(84, 17);
+            this.rbtnControl.TabIndex = 2;
+            this.rbtnControl.TabStop = true;
+            this.rbtnControl.Text = "Form Control";
+            this.rbtnControl.UseVisualStyleBackColor = true;
+            this.rbtnControl.CheckedChanged += new System.EventHandler(this.rbtnControl_CheckedChanged);
+            // 
+            // rbtnrec
+            // 
+            this.rbtnrec.AutoSize = true;
+            this.rbtnrec.Location = new System.Drawing.Point(10, 27);
+            this.rbtnrec.Name = "rbtnrec";
+            this.rbtnrec.Size = new System.Drawing.Size(74, 17);
+            this.rbtnrec.TabIndex = 1;
+            this.rbtnrec.Text = "Rectangle";
+            this.rbtnrec.UseVisualStyleBackColor = true;
+            this.rbtnrec.CheckedChanged += new System.EventHandler(this.rbtnrec_CheckedChanged);
+            // 
+            // rbtnfull
+            // 
+            this.rbtnfull.AutoSize = true;
+            this.rbtnfull.Checked = true;
+            this.rbtnfull.Location = new System.Drawing.Point(10, 3);
+            this.rbtnfull.Name = "rbtnfull";
+            this.rbtnfull.Size = new System.Drawing.Size(75, 17);
+            this.rbtnfull.TabIndex = 0;
+            this.rbtnfull.TabStop = true;
+            this.rbtnfull.Text = "FullScreen";
+            this.rbtnfull.UseVisualStyleBackColor = true;
+            this.rbtnfull.CheckedChanged += new System.EventHandler(this.rbtnfull_CheckedChanged);
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(6, 262);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(39, 13);
+            this.label4.TabIndex = 15;
+            this.label4.Text = "AREA:";
+            // 
+            // cbxAutoFirewall
+            // 
+            this.cbxAutoFirewall.AutoSize = true;
+            this.cbxAutoFirewall.Checked = true;
+            this.cbxAutoFirewall.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cbxAutoFirewall.Location = new System.Drawing.Point(51, 50);
+            this.cbxAutoFirewall.Name = "cbxAutoFirewall";
+            this.cbxAutoFirewall.Size = new System.Drawing.Size(130, 17);
+            this.cbxAutoFirewall.TabIndex = 14;
+            this.cbxAutoFirewall.Text = "Auto configure firewall";
+            this.cbxAutoFirewall.UseVisualStyleBackColor = true;
             // 
             // label9
             // 
@@ -290,62 +346,6 @@
             this.label1.TabIndex = 6;
             this.label1.Text = "PORT:";
             // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(6, 262);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(39, 13);
-            this.label4.TabIndex = 15;
-            this.label4.Text = "AREA:";
-            // 
-            // panel2
-            // 
-            this.panel2.Controls.Add(this.rbtnControl);
-            this.panel2.Controls.Add(this.rbtnrec);
-            this.panel2.Controls.Add(this.rbtnfull);
-            this.panel2.Location = new System.Drawing.Point(8, 278);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(173, 86);
-            this.panel2.TabIndex = 16;
-            // 
-            // rbtnfull
-            // 
-            this.rbtnfull.AutoSize = true;
-            this.rbtnfull.Checked = true;
-            this.rbtnfull.Location = new System.Drawing.Point(10, 3);
-            this.rbtnfull.Name = "rbtnfull";
-            this.rbtnfull.Size = new System.Drawing.Size(75, 17);
-            this.rbtnfull.TabIndex = 0;
-            this.rbtnfull.TabStop = true;
-            this.rbtnfull.Text = "FullScreen";
-            this.rbtnfull.UseVisualStyleBackColor = true;
-            this.rbtnfull.CheckedChanged += new System.EventHandler(this.rbtnfull_CheckedChanged);
-            // 
-            // rbtnrec
-            // 
-            this.rbtnrec.AutoSize = true;
-            this.rbtnrec.Location = new System.Drawing.Point(10, 27);
-            this.rbtnrec.Name = "rbtnrec";
-            this.rbtnrec.Size = new System.Drawing.Size(74, 17);
-            this.rbtnrec.TabIndex = 1;
-            this.rbtnrec.Text = "Rectangle";
-            this.rbtnrec.UseVisualStyleBackColor = true;
-            this.rbtnrec.CheckedChanged += new System.EventHandler(this.rbtnrec_CheckedChanged);
-            // 
-            // rbtnControl
-            // 
-            this.rbtnControl.AutoSize = true;
-            this.rbtnControl.Enabled = false;
-            this.rbtnControl.Location = new System.Drawing.Point(10, 51);
-            this.rbtnControl.Name = "rbtnControl";
-            this.rbtnControl.Size = new System.Drawing.Size(84, 17);
-            this.rbtnControl.TabIndex = 2;
-            this.rbtnControl.TabStop = true;
-            this.rbtnControl.Text = "Form Control";
-            this.rbtnControl.UseVisualStyleBackColor = true;
-            this.rbtnControl.CheckedChanged += new System.EventHandler(this.rbtnControl_CheckedChanged);
-            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -363,11 +363,11 @@
             this.groupBox3.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarSpeed)).EndInit();
-            this.panel2.ResumeLayout(false);
-            this.panel2.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -393,7 +393,7 @@
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.CheckBox cbxAutoFirewall;
         private System.Windows.Forms.CheckBox cbxConsole;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.RadioButton rbtnrec;

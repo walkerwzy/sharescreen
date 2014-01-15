@@ -16,7 +16,8 @@ namespace CaptureServerRx
         private bool _listening;
         private readonly HelperFirewall _fw = new HelperFirewall();
         private readonly CaptureRectangle _frmRec = new CaptureRectangle();
-        private readonly IDisposable _task;
+        private IDisposable _task;
+        private bool _serverRunning = false;
 
         public int Speed { get; set; }
         public int Port { get; set; }
@@ -27,8 +28,11 @@ namespace CaptureServerRx
             FormClosing += Main_FormClosing;
 
             SetSpeed(trackBarSpeed.Value);
-            SetPort();
+            SetPortNumber();
+        }
 
+        private void StartTask()
+        {
             _task = Observable.ToAsync(DoWork)().Subscribe(
                 _ => { },
                 ex =>
@@ -37,70 +41,27 @@ namespace CaptureServerRx
                     button2_Click(null, null);
                 });
         }
-
-
-        #region Events
-
-        //start
-        private void button1_Click(object sender, EventArgs e)
+        private void DoWork()
         {
-            //incase when user modified the port
-            SetPort();
+            SetPortNumber();
+            string url = "http://*:" + Port + "/";
 
-            _listening = true;
-            button1.Enabled = !_listening;
-            button2.Enabled = _listening;
-            txtport.ReadOnly = _listening;
-            checkBox1.Enabled = !_listening;
+            using (WebApp.Start<Startup>(url))
+            {
+                _serverRunning = true;
+                while (true)
+                {
+                    if (_listening)
+                    {
+                        var size = Notify();
+                        if (cbxConsole.Checked)
+                            txtconsole.AppendText(string.Format("{0} frame captured, buffer size: {1}\r\n",
+                                DateTime.Now.ToString("s"), size));
+                    }
+                    Thread.Sleep(Speed);
+                }
+            }
         }
-
-        //stop
-        private void button2_Click(object sender, EventArgs e)
-        {
-            _listening = false;
-            button1.Enabled = !_listening;
-            button2.Enabled = _listening;
-            txtport.ReadOnly = _listening;
-            checkBox1.Enabled = !_listening;
-
-            //incase when user modified the port
-            _fw.CloseFirewall(Port);
-        }
-
-        private void trackBarSpeed_ValueChanged(object sender, EventArgs e)
-        {
-            SetSpeed(trackBarSpeed.Value);
-        }
-
-        // capture full screen
-        private void rbtnfull_CheckedChanged(object sender, EventArgs e)
-        {
-            _frmRec.Hide();
-        }
-
-        // capture specific area
-        private void rbtnrec_CheckedChanged(object sender, EventArgs e)
-        {
-            if (rbtnrec.Checked) _frmRec.Show();
-        }
-
-        // capture windows form control
-        private void rbtnControl_CheckedChanged(object sender, EventArgs e)
-        {
-            _frmRec.Hide();
-        }
-
-        void Main_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            if (_task != null) _task.Dispose();
-            _fw.CloseFirewall(Port);
-        }
-
-        private void cbxConsole_CheckedChanged(object sender, EventArgs e)
-        {
-            if (!cbxConsole.Checked) txtconsole.Text = "";
-        }
-        #endregion
 
         private string _Capture(out int size)
         {
@@ -158,11 +119,18 @@ namespace CaptureServerRx
             lblfps.Text = fps + " fps";
         }
 
-        private void SetPort()
+        private void SetPortNumber()
         {
             var p = 8080;
             int.TryParse(txtport.Text.Trim(), out p);
             Port = p;
+        }
+
+        private bool CheckPortIsOpen()
+        {
+            if (!cbxAutoFirewall.Checked) return _fw.isPortFound(Port);
+            _fw.OpenFirewall(Port, "Screen Share Service");
+            return true;
         }
 
         private int Notify()
@@ -172,41 +140,78 @@ namespace CaptureServerRx
             context.Clients.All.stream(_Capture(out size));
             return size;
         }
-        
-        private void DoWork()
-        {
-            SetPort();
-            string url = "http://*:" + Port + "/";
 
-            //check if need to set up firewall (open port) manually
-            if (checkBox1.Checked)
-            {
-                _fw.OpenFirewall(Port, "Screen Share Service");
-            }
-            else if (!_fw.isPortFound(Port))
+        #region Events
+
+        //start
+        private void button1_Click(object sender, EventArgs e)
+        {
+            //in case  people modified the port
+            SetPortNumber();
+            if (!CheckPortIsOpen())
             {
                 MessageBox.Show("Please open the port " + Port +
-                                " manually!\r\nor check the \"Auto configure firewall\"");
-                button2_Click(null, null);
+                                " manually!\r\nor check the \"Auto configure firewall\" control");
                 return;
             }
 
-            using (WebApp.Start<Startup>(url))
-            {
-                while (true)
-                {
-                    if (_listening)
-                    {
-                        var size = Notify();
-                        if (cbxConsole.Checked)
-                            txtconsole.AppendText(string.Format("{0} frame captured, buffer size: {1}\r\n",
-                                DateTime.Now.ToString("s"), size));
-                    }
-                    Thread.Sleep(Speed);
-                }
-            }
+            _listening = true;
+            button1.Enabled = !_listening;
+            button2.Enabled = _listening;
+            txtport.ReadOnly = _listening;
+            cbxAutoFirewall.Enabled = !_listening;
+
+            if (!_serverRunning) StartTask();
         }
 
+        //stop
+        private void button2_Click(object sender, EventArgs e)
+        {
+            _listening = false;
+            button1.Enabled = !_listening;
+            button2.Enabled = _listening;
+            //TODO: I can't stop the signalr server and restart it, so it's no way to reset the port after the server is start
+            //txtport.ReadOnly = _listening;
+            //cbxAutoFirewall.Enabled = !_listening;
+
+            //in case people modified the port
+            _fw.CloseFirewall(Port);
+        }
+
+        private void trackBarSpeed_ValueChanged(object sender, EventArgs e)
+        {
+            SetSpeed(trackBarSpeed.Value);
+        }
+
+        // capture full screen
+        private void rbtnfull_CheckedChanged(object sender, EventArgs e)
+        {
+            _frmRec.Hide();
+        }
+
+        // capture specific area
+        private void rbtnrec_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rbtnrec.Checked) _frmRec.Show();
+        }
+
+        // capture windows form control
+        private void rbtnControl_CheckedChanged(object sender, EventArgs e)
+        {
+            _frmRec.Hide();
+        }
+
+        void Main_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (_task != null) _task.Dispose();
+            _fw.CloseFirewall(Port);
+        }
+
+        private void cbxConsole_CheckedChanged(object sender, EventArgs e)
+        {
+            if (!cbxConsole.Checked) txtconsole.Text = "";
+        }
+        #endregion
 
     }
 }
